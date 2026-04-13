@@ -36,6 +36,9 @@ class Author(models.Model):
         self.rating = post_rating + comment_rating + posts_comments_rating
         self.save()
 
+    def __str__(self):
+        return self.user.username
+
 
 class Category(models.Model):
     """
@@ -43,6 +46,9 @@ class Category(models.Model):
     """
     # Название категории. Должно быть уникальным.
     name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Post(models.Model):
@@ -89,6 +95,9 @@ class Post(models.Model):
         """
         return self.text[:124] + '...'
 
+    def __str__(self):
+        return self.title
+
 
 class PostCategory(models.Model):
     """
@@ -123,3 +132,6 @@ class Comment(models.Model):
         """Уменьшает рейтинг комментария на 1."""
         self.rating -= 1
         self.save()
+
+    def __str__(self):
+        return self.text
