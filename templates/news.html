@@ -1,0 +1,33 @@
+{% extends 'flatpages/default.html' %}
+
+{% block title %}
+Новости
+{% endblock title %}
+
+{% block content %}
+    <h2>Всего новостей: {{ news|length }}</h2>
+    <h1>Новости</h1>
+
+    <!-- Начало списка новостей -->
+    <ul>
+        {% for post in news %}
+            <li>
+                <h2>{{ post.title }}</h2>
+
+                <p><strong>Автор:</strong> {{ post.author }}</p>
+
+                <!-- Выводим дату в формате 13.04.2026 -->
+                <p><strong>Дата публикации:</strong> {{ post.created_at|date:"d.m.Y" }}</p>
+
+                <!-- Выводим первые 20 слов текста статьи -->
+                <div class="news-text">
+                    {{ post.text|truncatewords:20 }}
+                </div>
+
+                <hr>
+            </li>
+        {% empty %}
+            <li>Новостей пока нет.</li>
+        {% endfor %}
+    </ul>
+{% endblock content %}
