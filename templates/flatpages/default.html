@@ -13,7 +13,8 @@
     </head>
     <body>
         <!-- Responsive navbar-->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+<nav
+        class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
    <div class="container">
        <a class="navbar-brand" href="#">Django flatpages</a>
        <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -24,14 +25,31 @@
        </button>
        <div class="collapse navbar-collapse" id="navbarResponsive">
            <ul class="navbar-nav ml-auto">
-               <li class="nav-item active">
-                   <a class="nav-link" href="#">Home
-                       <span class="sr-only">(current)</span>
-                   </a>
-               </li>
                <li class="nav-item">
                    <a class="nav-link" href="/news/">News</a>
                </li>
+               <li class="nav-item">
+                   <a class="nav-link" href="/news/search/">Search</a>
+               </li>
+               <li class="nav-item">
+                   <a class="nav-link" href="/news/news/create/">Create NW</a>
+               </li>
+               <li class="nav-item">
+                   <a class="nav-link" href="/news/articles/create/">Create AR</a>
+               </li>
+               {% if user.is_authenticated %}
+                    <li class="nav-item">
+        <!-- Форма для отправки POST-запроса -->
+                        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link btn btn-link">Выйти</button>
+                        </form>
+                    </li>
+               {% else %}
+                    <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Войти</a>
+                    </li>
+               {% endif %}
            </ul>
        </div>
    </div>

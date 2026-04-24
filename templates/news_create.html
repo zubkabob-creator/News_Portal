@@ -1,0 +1,42 @@
+{% extends 'flatpages/default.html' %}
+
+{% block content %}
+    <h1>Новость</h1>
+    <hr>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+            <div class="text-danger">
+                {{ form.title.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            {{ form.text.label_tag }}
+            {{ form.text }}
+            <div class="text-danger">
+                {{ form.text.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            {{ form.categories.label_tag }}
+            {{ form.categories }}
+            <div class="text-danger">
+                {{ form.categories.errors }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </form>
+{% endblock content %}

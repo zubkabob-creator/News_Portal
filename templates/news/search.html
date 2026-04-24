@@ -1,0 +1,50 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_tags %}  <!-- Подключаем наши кастомные теги -->
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Поиск новостей</h1>
+
+    <!-- Форма поиска -->
+    <form method="get" action="" class="w-33">
+        {{ filter.form }}
+        <button type="submit" class="btn btn-primary btn-sm mt-2">Найти</button>
+    </form>
+
+    <!-- Результаты поиска -->
+    {% if object_list %}
+        <ul>
+            {% for post in object_list %}
+                <li>
+                    <h2>{{ post.title }}</h2>
+                    Автор: {{ post.author.user.username }}<br>
+                    Дата публикации: {{ post.created_at|date:"d.m.Y" }}<br>
+                    <a href="{% url 'news_detail' post.id %}">Подробнее</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="mt-4">Нет новостей по вашему запросу.</p>
+    {% endif %}
+
+    <!-- Пагинация -->
+    {% if is_paginated %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?{% url_replace page=1 %}">Первая</a></li>
+                    <li class="page-item"><a class="page-link" href="?{% url_replace page=page_obj.previous_page_number %}">Предыдущая</a></li>
+                {% endif %}
+
+                <li class="page-item active"><a class="page-link" href="#">{{ page_obj.number }}</a></li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?{% url_replace page=page_obj.next_page_number %}">Следующая</a></li>
+                    <li class="page-item"><a class="page-link" href="?{% url_replace page=page_obj.paginator.num_pages %}">Последняя</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}
