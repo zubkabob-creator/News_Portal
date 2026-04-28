@@ -1,12 +1,15 @@
 from datetime import datetime
-from django.shortcuts import render
+
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Post, Author
 from .filters import NewsFilter
 from django_filters.views import FilterView
 from .forms import PostForm
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import login_required
 
 
 class NewsSearch(FilterView):
@@ -51,10 +54,11 @@ class newsDetail(DetailView):
     context_object_name = 'newsDetail'
 
 
-class NewsCreateView(CreateView):
+class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'news_create.html'
+    permission_required = 'News_Portal.add_post'
 
     def form_valid(self, form):
         post = form.save(commit=False)
@@ -65,10 +69,11 @@ class NewsCreateView(CreateView):
         return super().form_valid(form)
 
 
-class NewsUpdateView(LoginRequiredMixin, UpdateView):
+class NewsUpdateView(LoginRequiredMixin,PermissionRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'news_create.html'
+    permission_required = 'News_Portal.change_post'
 
 
 class NewsDeleteView(DeleteView):
@@ -79,10 +84,11 @@ class NewsDeleteView(DeleteView):
 
 
 
-class ArticleCreateView(CreateView):
+class ArticleCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'article_create.html'
+    permission_required = 'News_Portal.add_post'
 
     def form_valid(self, form):
         post = form.save(commit=False)
@@ -93,10 +99,11 @@ class ArticleCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ArticleUpdateView(LoginRequiredMixin, UpdateView):
+class ArticleUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'article_create.html'
+    permission_required = 'News_Portal.change_post'
 
 
 class ArticleDeleteView(DeleteView):
@@ -104,3 +111,12 @@ class ArticleDeleteView(DeleteView):
     template_name = 'post_confirm_delete.html'
 
     success_url = reverse_lazy('news_list')
+
+
+@login_required
+def upgrade_me(request):
+    user = request.user
+    authors_group = Group.objects.get(name='authors')
+    if not request.user.groups.filter(name='authors').exists():
+        authors_group.user_set.add(user)
+    return redirect('/')

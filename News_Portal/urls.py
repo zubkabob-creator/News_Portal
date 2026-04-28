@@ -4,7 +4,7 @@ from .views import (
     NewsSearch, NewsCreateView,
     ArticleCreateView, NewsUpdateView,
     ArticleUpdateView, NewsDeleteView,
-    ArticleDeleteView
+    ArticleDeleteView,
 )
 
 urlpatterns = [

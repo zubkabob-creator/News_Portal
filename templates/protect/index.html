@@ -1,0 +1,16 @@
+{% extends "main.html" %}
+
+{% block content %}
+<h2>Страница авторизованного пользователя {{request.user.username}}</h2>
+<div> Здесь может содержаться персональная информация для каждого пользователя </div>
+
+<form action="{% url 'logout' %}" method="post" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-link">Выйти</button>
+</form>
+{% if is_not_authors %}
+    <a href="{% url 'upgrade' %}" class="btn btn-primary btn-sm">
+        Стать автором!
+    </a>
+{% endif %}
+{% endblock %}
