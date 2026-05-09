@@ -1,12 +1,17 @@
 from datetime import datetime
-from django.shortcuts import render
+from django.utils import timezone
+
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post, Author
+from .models import Post, Author, Category
 from .filters import NewsFilter
 from django_filters.views import FilterView
 from .forms import PostForm
 from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import login_required
+from django.views import View
 
 
 class NewsSearch(FilterView):
@@ -51,24 +56,28 @@ class newsDetail(DetailView):
     context_object_name = 'newsDetail'
 
 
-class NewsCreateView(CreateView):
+class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'news_create.html'
+    permission_required = 'News_Portal.add_post'
 
     def form_valid(self, form):
         post = form.save(commit=False)
+        post.created_at = timezone.now()
         post.type = Post.NEWS
         current_user = self.request.user
         author, created = Author.objects.get_or_create(user=current_user)
         post.author = author
+        post.save()
         return super().form_valid(form)
 
 
-class NewsUpdateView(LoginRequiredMixin, UpdateView):
+class NewsUpdateView(PermissionRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'news_create.html'
+    permission_required = 'News_Portal.change_post'
 
 
 class NewsDeleteView(DeleteView):
@@ -79,24 +88,28 @@ class NewsDeleteView(DeleteView):
 
 
 
-class ArticleCreateView(CreateView):
+class ArticleCreateView(PermissionRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'article_create.html'
+    permission_required = 'News_Portal.add_post'
 
     def form_valid(self, form):
         post = form.save(commit=False)
+        post.created_at = timezone.now()
         post.type = Post.ARTICLE
         current_user = self.request.user
         author, created = Author.objects.get_or_create(user=current_user)
         post.author = author
+        post.save()
         return super().form_valid(form)
 
 
-class ArticleUpdateView(LoginRequiredMixin, UpdateView):
+class ArticleUpdateView(PermissionRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'article_create.html'
+    permission_required = 'News_Portal.change_post'
 
 
 class ArticleDeleteView(DeleteView):
@@ -104,3 +117,25 @@ class ArticleDeleteView(DeleteView):
     template_name = 'post_confirm_delete.html'
 
     success_url = reverse_lazy('news_list')
+
+
+@login_required
+def upgrade_me(request):
+    user = request.user
+    authors_group = Group.objects.get(name='authors')
+    if not request.user.groups.filter(name='authors').exists():
+        authors_group.user_set.add(user)
+    return redirect('/')
+
+
+class CategorySubscribeView(LoginRequiredMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        category = get_object_or_404(Category, pk=self.kwargs.get('pk'))
+
+        if request.user in category.subscribers.all():
+            category.subscribers.remove(request.user)
+        else:
+            category.subscribers.add(request.user)
+
+        return redirect(request.META.get('HTTP_REFERER', 'news_list'))

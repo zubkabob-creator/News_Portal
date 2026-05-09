@@ -12,6 +12,13 @@
     <div class="news-meta">
         <p><strong>Дата публикации:</strong> {{ newsDetail.created_at|date:"d.m.Y" }}</p>
         <p><strong>Автор:</strong> {{ newsDetail.author }}</p>
+
+        <!-- НОВЫЙ БЛОК: Отображение категории -->
+        <p><strong>Категория:</strong>
+            {% for category in newsDetail.categories.all %}
+                {{ category.name }}
+            {% endfor %}
+        </p>
     </div>
 
     <hr>
@@ -19,5 +26,27 @@
     <div class="news-content">
         {{ newsDetail.text|censor|linebreaks }}
     </div>
+
+    <hr>
+
+    <!-- НОВЫЙ БЛОК: Кнопки подписки -->
+    {% if user.is_authenticated %}
+    <!-- Проверяем каждую категорию статьи -->
+    {% for category in newsDetail.categories.all %}
+        {% if user in category.subscribers.all %}
+            <form action="{% url 'News_Portal:category_subscribe' category.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">Отписаться от "{{ category.name }}"</button>
+            </form>
+        {% else %}
+            <form action="{% url 'News_Portal:category_subscribe' category.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-success">Подписаться на "{{ category.name }}"</button>
+            </form>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <a href="{% url 'account_login' %}" class="btn btn-sm btn-secondary">Войти, чтобы подписаться</a>
+{% endif %}
 
 {% endblock content %}
