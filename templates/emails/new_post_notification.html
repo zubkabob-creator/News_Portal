@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Новая статья</title>
+</head>
+<body>
+    <h2>Здравствуй, {{ user.username }}!</h2>
+    <p>Новая статья в твоём любимом разделе "{{ category_name }}":</p>
+
+    <h3><a href="{{ link }}">{{ post.title }}</a></h3>
+    <div>
+        {{ post.text|slice:":50" }}...
+    </div>
+</body>
+</html>

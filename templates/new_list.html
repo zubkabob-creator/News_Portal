@@ -1,0 +1,21 @@
+{% for category in categories.all %}
+    <div>
+        <h3>{{ category.name }}</h3>
+
+        {% if user.is_authenticated %}
+            {% if user in category.subscribers.all %}
+                <form action="{% url 'category_subscribe' category.pk %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Отписаться</button>
+                </form>
+            {% else %}
+                <form action="{% url 'category_subscribe' category.pk %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-success">Подписаться</button>
+                </form>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'account_login' %}" class="btn btn-sm btn-secondary">Войти, чтобы подписаться</a>
+        {% endif %}
+    </div> <!-- ЗАКРЫВАЮЩИЙ div (добавлен) -->
+{% endfor %}

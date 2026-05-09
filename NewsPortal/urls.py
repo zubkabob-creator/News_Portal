@@ -7,7 +7,8 @@ from django.contrib.auth.views import LogoutView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('pages/', include('django.contrib.flatpages.urls')),
-    path('news/', include('News_Portal.urls')),
+    path('news/', include(('News_Portal.urls', 'News_Portal'),
+namespace='news_portal')),
     path('accounts/', include('allauth.urls')),
     path('', include('protect.urls')),
     path('protect/logout/', LogoutView.as_view(template_name = 'protect/logout.html'), name='logout'),

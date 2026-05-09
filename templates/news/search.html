@@ -20,7 +20,7 @@
                     <h2>{{ post.title }}</h2>
                     Автор: {{ post.author.user.username }}<br>
                     Дата публикации: {{ post.created_at|date:"d.m.Y" }}<br>
-                    <a href="{% url 'news_detail' post.id %}">Подробнее</a>
+                    <a href="{% url 'News_Portal:news_detail' post.id %}">Подробнее</a>
                 </li>
             {% endfor %}
         </ul>

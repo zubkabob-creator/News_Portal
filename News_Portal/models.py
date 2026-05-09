@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.conf import settings
+
 
 
 class Author(models.Model):
@@ -31,7 +33,12 @@ class Author(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
-
+    subscribers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        verbose_name='Подписчики',
+        blank=True,
+        related_name='subscribed_categories'
+    )
     def __str__(self):
         return self.name
 
@@ -72,7 +79,8 @@ class Post(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('news_detail', kwargs={'pk': self.pk})
+        return reverse('News_Portal:news_detail', kwargs={'pk': self.pk})
+
 
 
 class PostCategory(models.Model):
