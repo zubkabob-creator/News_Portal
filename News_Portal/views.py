@@ -3,6 +3,7 @@ from django.utils import timezone
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from .tasks import send_new_post_notifications_task
 from .models import Post, Author, Category
 from .filters import NewsFilter
 from django_filters.views import FilterView
@@ -69,8 +70,9 @@ class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
         current_user = self.request.user
         author, created = Author.objects.get_or_create(user=current_user)
         post.author = author
-        post.save()
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        send_new_post_notifications_task.delay(self.object.id)
+        return response
 
 
 class NewsUpdateView(PermissionRequiredMixin, UpdateView):
@@ -97,12 +99,13 @@ class ArticleCreateView(PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.created_at = timezone.now()
-        post.type = Post.ARTICLE
+        post.type = Post.NEWS
         current_user = self.request.user
         author, created = Author.objects.get_or_create(user=current_user)
         post.author = author
-        post.save()
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        send_new_post_notifications_task.delay(self.object.id)
+        return response
 
 
 class ArticleUpdateView(PermissionRequiredMixin, UpdateView):
