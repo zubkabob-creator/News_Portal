@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, include
+from django.contrib import admin
 from .views import (
     news, newsDetail,
     NewsSearch, NewsCreateView,
@@ -6,11 +7,13 @@ from .views import (
     ArticleUpdateView, NewsDeleteView,
     ArticleDeleteView, CategorySubscribeView
 )
+from django.views.decorators.cache import cache_page
+
 
 urlpatterns = [
-    path('', news.as_view(), name='news_list'),
+    path('', cache_page(60)(news.as_view()), name='news_list'),
     path('search/', NewsSearch.as_view(template_name='news/search.html'), name='news_search'),
-    path('<int:pk>/', newsDetail.as_view(), name='news_detail'),
+    path('<int:pk>/', (newsDetail.as_view()), name='news_detail'),
     path('news/create/', NewsCreateView.as_view(), name='news_create'),
     path('articles/create/', ArticleCreateView.as_view(), name='article_create'),
     path('news/<int:pk>/edit/', NewsUpdateView.as_view(), name='news_edit'),
@@ -18,4 +21,6 @@ urlpatterns = [
     path('news/<int:pk>/delete/', NewsDeleteView.as_view(), name='news_delete'),
     path('articles/<int:pk>/delete/', ArticleDeleteView.as_view(), name='article_delete'),
     path('category/<int:pk>/subscribe/', CategorySubscribeView.as_view(), name='category_subscribe'),
+    path('admin/', admin.site.urls),
+    path('pages/', include('django.contrib.flatpages.urls')),
 ]

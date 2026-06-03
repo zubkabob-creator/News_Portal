@@ -13,6 +13,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.views import View
+from django.core.cache import cache
+from django.utils.safestring import mark_safe
+from django.template.loader import render_to_string
 
 
 class NewsSearch(FilterView):
@@ -22,16 +25,19 @@ class NewsSearch(FilterView):
     paginate_by = 10
     ordering = ['-created_at']
 
+    def get_filterset_kwargs(self, filterset_class):
+        kwargs = super().get_filterset_kwargs(filterset_class)
+        kwargs['queryset'] = Post.objects.order_by('-created_at')  # Обязательно сортируем queryset
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['filter'] = self.filterset
-        print(self.request.GET)
         return context
 
 
 class news(ListView):
     model = Post
-    ordering = ['-created_at']
     template_name = 'news.html'
     context_object_name = 'news'
     paginate_by = 10
@@ -56,6 +62,16 @@ class newsDetail(DetailView):
     template_name = 'newsDetail.html'
     context_object_name = 'newsDetail'
 
+    def get_object(self, queryset=None):
+        # obj = super().get_object(queryset)
+        # cache_key = f'post_{obj.pk}_detail'
+        # cached_version = cache.get(cache_key)
+        # if cached_version is None:
+        #     rendered_html = render_to_string(self.template_name, {'object': obj})
+        #     cache.set(cache_key, rendered_html, timeout=None)  # Бессрочное хранение
+        #     return obj
+        # return mark_safe(cached_version)
+        return super().get_object(queryset)
 
 class NewsCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Post

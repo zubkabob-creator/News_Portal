@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.conf import settings
+from django.utils import timezone
+from django.core.cache import cache
 
 
 
@@ -56,6 +58,7 @@ class Post(models.Model):
     type = models.CharField(max_length=2, choices=POST_TYPE_CHOICES)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     title = models.CharField(max_length=255, verbose_name='Заголовок')
     text = models.TextField(verbose_name='Текст')
@@ -81,6 +84,10 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('News_Portal:news_detail', kwargs={'pk': self.pk})
 
+    def save(self, *args, **kwargs):
+        cache_key = f'post_{self.pk}_detail'
+        cache.delete(cache_key)
+        super().save(*args, **kwargs)
 
 
 class PostCategory(models.Model):

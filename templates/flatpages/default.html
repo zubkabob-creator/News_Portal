@@ -9,10 +9,12 @@
         <!-- Favicon-->
         <!-- Core theme CSS (includes Bootstrap)-->
         {% load static %}
+        {% load cache %}
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     </head>
     <body>
         <!-- Responsive navbar-->
+        {% cache 600 main_navigation %}
 <nav
         class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
    <div class="container">
@@ -44,6 +46,8 @@
        </div>
    </div>
 </nav>
+{% endcache %}
+
 
 <!-- Page content-->
 <div class="container">

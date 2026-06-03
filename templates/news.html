@@ -1,10 +1,13 @@
 {% extends 'flatpages/default.html' %}
 
+{% load cache %}
+
 {% block title %}
 Новости
 {% endblock title %}
 
 {% block content %}
+{% cache 300 news_list %}
     <h2>Всего новостей: {{ total_news_count }}</h2>
     <h1>Новости</h1>
 
@@ -47,4 +50,5 @@
            <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
        {% endif %}
    {% endif %}
+{% endcache %}
 {% endblock content %}
